@@ -20,13 +20,14 @@ export function App() {
   )
   console.log(transactions)
   const loadAllTransactions = useCallback(async () => {
-    setIsLoading(true)
+    if(!employees) {
+      setIsLoading(true)
+      await employeeUtils.fetchAll()
+      setIsLoading(false)
+    }
+
     transactionsByEmployeeUtils.invalidateData()
-
-    await employeeUtils.fetchAll()
     await paginatedTransactionsUtils.fetchAll()
-
-    setIsLoading(false)
   }, [employeeUtils, paginatedTransactionsUtils, transactionsByEmployeeUtils])
 
   const loadTransactionsByEmployee = useCallback(
@@ -39,6 +40,7 @@ export function App() {
 
   useEffect(() => {
     if (employees === null && !employeeUtils.loading) {
+      console.log("here")
       loadAllTransactions()
     }
   }, [employeeUtils.loading, employees, loadAllTransactions])
@@ -66,6 +68,7 @@ export function App() {
               return
             }
             else if (newValue.id === "") {
+              console.log("here")
               await loadAllTransactions()
               return
             }
@@ -84,6 +87,7 @@ export function App() {
               className="RampButton"
               disabled={paginatedTransactionsUtils.loading}
               onClick={async () => {
+                console.log("here")
                 await loadAllTransactions()
               }}
             >
