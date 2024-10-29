@@ -71,7 +71,7 @@ export function InputSelect<TItem>({
                 "RampInputSelect--dropdown-container-opened": isOpen,
               })}
               {...getMenuProps()}
-              style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
+              style={{ top: dropdownPosition.top }}
             >
               {renderItems()}
             </div>
@@ -79,6 +79,7 @@ export function InputSelect<TItem>({
         )
 
         function renderItems() {
+          console.log(items)
           if (!isOpen) {
             return null
           }
@@ -93,9 +94,10 @@ export function InputSelect<TItem>({
 
           return items.map((item, index) => {
             const parsedItem = parseItem(item)
+            console.log(parsedItem)
             return (
               <div
-                key={parsedItem.value}
+                key={(parsedItem.value === '') ? null : parsedItem.value}
                 {...getItemProps({
                   key: parsedItem.value,
                   index,
