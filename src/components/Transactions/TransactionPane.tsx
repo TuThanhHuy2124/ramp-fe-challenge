@@ -29,7 +29,6 @@ export const TransactionPane: TransactionPaneComponent = ({
           })
 
           setApproved(newValue)
-          console.log(newValue)
         }}
       />
     </div>
