@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react"
 import { InputSelect } from "./components/InputSelect"
 import { Instructions } from "./components/Instructions"
 import { Transactions } from "./components/Transactions"
@@ -9,7 +9,7 @@ import { EMPTY_EMPLOYEE } from "./utils/constants"
 import { Employee } from "./utils/types"
 import { createContext } from "react"
 
-type CheckboxChangedContextType = React.Dispatch<React.SetStateAction<boolean>>;
+type CheckboxChangedContextType = React.Dispatch<React.SetStateAction<boolean>>
 export const CheckboxChangedContext = createContext<CheckboxChangedContextType>(() => null)
 
 export function App() {
@@ -18,18 +18,14 @@ export function App() {
   const { data: transactionsByEmployee, ...transactionsByEmployeeUtils } = useTransactionsByEmployee()
   const [isLoading, setIsLoading] = useState(false)
   const [changed, setChanged] = useState(false)
-  
+
   const transactions = useMemo(
-    () => {
-      console.log(paginatedTransactions, transactionsByEmployee)
-      return paginatedTransactions?.data ?? transactionsByEmployee ?? null
-    },
+    () => paginatedTransactions?.data ?? transactionsByEmployee ?? null,
     [paginatedTransactions, transactionsByEmployee]
   )
-  console.log("Transactions:", transactions)
 
   const loadAllTransactions = useCallback(async () => {
-    if(!employees) {
+    if (!employees) {
       setIsLoading(true)
       await employeeUtils.fetchAll()
       setIsLoading(false)
@@ -37,16 +33,14 @@ export function App() {
 
     transactionsByEmployeeUtils.invalidateData(changed && paginatedTransactions === null)
     await paginatedTransactionsUtils.fetchAll()
-    setChanged(false)
-    console.log("loadAll", paginatedTransactions?.data, transactionsByEmployee)
   }, [employeeUtils, paginatedTransactionsUtils, transactionsByEmployeeUtils])
 
   const loadTransactionsByEmployee = useCallback(
     async (employeeId: string) => {
       paginatedTransactionsUtils.invalidateData(changed && transactionsByEmployee === null)
+      transactionsByEmployeeUtils.invalidateData(changed)
       await transactionsByEmployeeUtils.fetchById(employeeId)
       setChanged(false)
-      console.log("loadEmployee", paginatedTransactions?.data, transactionsByEmployee)
     },
     [paginatedTransactionsUtils, transactionsByEmployeeUtils]
   )
@@ -77,8 +71,7 @@ export function App() {
           onChange={async (newValue) => {
             if (newValue === null) {
               return
-            }
-            else if (newValue.id === "") {
+            } else if (newValue.id === "") {
               await loadAllTransactions()
               return
             }
@@ -94,7 +87,7 @@ export function App() {
             <Transactions transactions={transactions} />
           </CheckboxChangedContext.Provider>
 
-          {(paginatedTransactions !== null && paginatedTransactions.nextPage !== null) && (
+          {paginatedTransactions !== null && paginatedTransactions.nextPage !== null && (
             <button
               className="RampButton"
               disabled={paginatedTransactionsUtils.loading}

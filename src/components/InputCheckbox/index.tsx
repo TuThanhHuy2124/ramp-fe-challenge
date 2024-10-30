@@ -7,7 +7,6 @@ export const InputCheckbox: InputCheckboxComponent = ({ id, checked = false, dis
   const { current: inputId } = useRef(`RampInputCheckbox-${id}`)
   const setChanged = useContext(CheckboxChangedContext)
 
-  console.log(id, checked)
   return (
     <div className="RampInputCheckbox--container" 
       data-testid={inputId}
