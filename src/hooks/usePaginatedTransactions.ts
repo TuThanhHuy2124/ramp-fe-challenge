@@ -4,7 +4,7 @@ import { PaginatedTransactionsResult } from "./types"
 import { useCustomFetch } from "./useCustomFetch"
 
 export function usePaginatedTransactions(): PaginatedTransactionsResult {
-  const { fetchWithCache, loading } = useCustomFetch()
+  const { fetchWithCache, clearCache, loading } = useCustomFetch()
   const [paginatedTransactions, setPaginatedTransactions] = useState<PaginatedResponse<
     Transaction[]
   > | null>(null)
@@ -23,13 +23,13 @@ export function usePaginatedTransactions(): PaginatedTransactionsResult {
       }
 
       const responseData = (paginatedTransactions?.data ?? []).concat(response.data)
-      console.log("setPaginatedTransactions():" , responseData)
       return { data: responseData, nextPage: response.nextPage }
     })
   }, [fetchWithCache, paginatedTransactions])
 
-  const invalidateData = useCallback(() => {
+  const invalidateData = useCallback((changed: boolean) => {
     setPaginatedTransactions(null)
+    if(changed) {clearCache()}
   }, [])
 
   return { data: paginatedTransactions, loading, fetchAll, invalidateData }

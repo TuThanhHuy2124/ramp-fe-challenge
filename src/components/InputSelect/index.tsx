@@ -79,7 +79,6 @@ export function InputSelect<TItem>({
         )
 
         function renderItems() {
-          console.log(items)
           if (!isOpen) {
             return null
           }
@@ -94,7 +93,6 @@ export function InputSelect<TItem>({
 
           return items.map((item, index) => {
             const parsedItem = parseItem(item)
-            console.log(parsedItem)
             return (
               <div
                 key={(parsedItem.value === '') ? null : parsedItem.value}

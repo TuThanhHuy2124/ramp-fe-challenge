@@ -1,14 +1,17 @@
 import classNames from "classnames"
-import { useRef } from "react"
+import { useContext, useRef } from "react"
 import { InputCheckboxComponent } from "./types"
+import { CheckboxChangedContext } from "src/App"
 
 export const InputCheckbox: InputCheckboxComponent = ({ id, checked = false, disabled, onChange }) => {
   const { current: inputId } = useRef(`RampInputCheckbox-${id}`)
+  const setChanged = useContext(CheckboxChangedContext)
 
+  console.log(id, checked)
   return (
     <div className="RampInputCheckbox--container" 
       data-testid={inputId}
-      onClick={() => onChange(!checked)}>
+      onClick={() => {onChange(!checked); setChanged(true)}}>
       <label
         className={classNames("RampInputCheckbox--label", {
           "RampInputCheckbox--label-checked": checked,

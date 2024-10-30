@@ -3,7 +3,7 @@ import { Employee, PaginatedResponse, Transaction } from "../utils/types"
 type UseTypeBaseResult<TValue> = {
   data: TValue
   loading: boolean
-  invalidateData: () => void
+  invalidateData: (changed: boolean) => void
 }
 
 type UseTypeBaseAllResult<TValue> = UseTypeBaseResult<TValue> & {

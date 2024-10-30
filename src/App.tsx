@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react"
+import { Fragment, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import { InputSelect } from "./components/InputSelect"
 import { Instructions } from "./components/Instructions"
 import { Transactions } from "./components/Transactions"
@@ -7,18 +7,27 @@ import { usePaginatedTransactions } from "./hooks/usePaginatedTransactions"
 import { useTransactionsByEmployee } from "./hooks/useTransactionsByEmployee"
 import { EMPTY_EMPLOYEE } from "./utils/constants"
 import { Employee } from "./utils/types"
+import { createContext } from "react"
+
+type CheckboxChangedContextType = React.Dispatch<React.SetStateAction<boolean>>;
+export const CheckboxChangedContext = createContext<CheckboxChangedContextType>(() => null)
 
 export function App() {
   const { data: employees, ...employeeUtils } = useEmployees()
   const { data: paginatedTransactions, ...paginatedTransactionsUtils } = usePaginatedTransactions()
   const { data: transactionsByEmployee, ...transactionsByEmployeeUtils } = useTransactionsByEmployee()
   const [isLoading, setIsLoading] = useState(false)
-  console.log(paginatedTransactions, transactionsByEmployee)
+  const [changed, setChanged] = useState(false)
+  
   const transactions = useMemo(
-    () => paginatedTransactions?.data ?? transactionsByEmployee ?? null,
+    () => {
+      console.log(paginatedTransactions, transactionsByEmployee)
+      return paginatedTransactions?.data ?? transactionsByEmployee ?? null
+    },
     [paginatedTransactions, transactionsByEmployee]
   )
-  console.log(transactions)
+  console.log("Transactions:", transactions)
+
   const loadAllTransactions = useCallback(async () => {
     if(!employees) {
       setIsLoading(true)
@@ -26,21 +35,24 @@ export function App() {
       setIsLoading(false)
     }
 
-    transactionsByEmployeeUtils.invalidateData()
+    transactionsByEmployeeUtils.invalidateData(changed && paginatedTransactions === null)
     await paginatedTransactionsUtils.fetchAll()
+    setChanged(false)
+    console.log("loadAll", paginatedTransactions?.data, transactionsByEmployee)
   }, [employeeUtils, paginatedTransactionsUtils, transactionsByEmployeeUtils])
 
   const loadTransactionsByEmployee = useCallback(
     async (employeeId: string) => {
-      paginatedTransactionsUtils.invalidateData()
+      paginatedTransactionsUtils.invalidateData(changed && transactionsByEmployee === null)
       await transactionsByEmployeeUtils.fetchById(employeeId)
+      setChanged(false)
+      console.log("loadEmployee", paginatedTransactions?.data, transactionsByEmployee)
     },
     [paginatedTransactionsUtils, transactionsByEmployeeUtils]
   )
 
   useEffect(() => {
     if (employees === null && !employeeUtils.loading) {
-      console.log("here")
       loadAllTransactions()
     }
   }, [employeeUtils.loading, employees, loadAllTransactions])
@@ -63,7 +75,6 @@ export function App() {
             label: `${item.firstName} ${item.lastName}`,
           })}
           onChange={async (newValue) => {
-            console.log("newValue", newValue)
             if (newValue === null) {
               return
             }
@@ -79,14 +90,15 @@ export function App() {
         <div className="RampBreak--l" />
 
         <div className="RampGrid">
-          <Transactions transactions={transactions} />
+          <CheckboxChangedContext.Provider value={setChanged}>
+            <Transactions transactions={transactions} />
+          </CheckboxChangedContext.Provider>
 
-          {(paginatedTransactions !== null && paginatedTransactions?.nextPage !== null) && (
+          {(paginatedTransactions !== null && paginatedTransactions.nextPage !== null) && (
             <button
               className="RampButton"
               disabled={paginatedTransactionsUtils.loading}
               onClick={async () => {
-                console.log("here")
                 await loadAllTransactions()
               }}
             >
